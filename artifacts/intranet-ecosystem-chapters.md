@@ -1,0 +1,52 @@
+- 0:00 Portal: guest dashboard and sign-in link
+- 0:01 Users: sign-in page
+- 0:02 Users: registration page and validation
+- 0:04 Users: create a member account
+- 0:06 Portal: member account and logout
+- 0:07 Users: member access restriction
+- 0:09 Users: account hub session after portal logout
+- 0:09 Users: request a password reset
+- 0:12 Users: update the password through the development reset link
+- 0:13 Users: admin sign-in
+- 0:15 Portal: two-row dashboard
+- 0:17 Portal: collapse and expand the desktop sidebar
+- 0:19 Portal: clock in
+- 0:20 Portal: live hours and clock out
+- 0:21 Portal: edit skills radar chart
+- 0:24 Portal: select a date in the calendar
+- 0:25 Portal: reserve a Kuutio meeting
+- 0:29 Users: service directory
+- 0:31 Users: switch light and dark appearance
+- 0:33 Users: create a temporary service
+- 0:36 Users: reveal, copy, and hide a service key
+- 0:38 Users: edit the temporary service
+- 0:40 Users: delete the temporary service
+- 0:42 Users: user access management
+- 0:44 Users: edit member service access
+- 0:47 Users: promote and revoke member admin access
+- 0:50 Kuutio: booking calendar and SSO
+- 0:52 Kuutio: next month, previous month, and today
+- 0:54 Kuutio: select tomorrow and an available slot
+- 0:56 Kuutio: recurring reservation options
+- 0:58 Kuutio: confirm two weekly bookings
+- 1:00 Kuutio: return to the booking list
+- 1:02 Kuutio: view booking statistics
+- 1:03 Kuutio: hide statistics and delete a booking
+- 1:05 Kuutio: next week and calendar navigation
+- 1:06 Kuutio: delete the remaining recurring booking
+- 1:08 Kuutio: sign out and sign back in
+- 1:10 Kuutio: return to portal
+- 1:11 Työaika: SSO and home page
+- 1:13 Työaika: clock in and confirmation
+- 1:15 Työaika: close the confirmation
+- 1:16 Työaika: clock out and confirmation
+- 1:17 Työaika: close the confirmation
+- 1:18 Työaika: employee roster
+- 1:20 Työaika: employee month view
+- 1:21 Työaika: next month
+- 1:22 Työaika: previous month
+- 1:23 Työaika: own completed worktimes
+- 1:25 Työaika: sign out
+- 1:26 Users: admin signs in to remove the temporary member
+- 1:29 Users: remove the temporary member account
+- 1:31 Portal: final dashboard

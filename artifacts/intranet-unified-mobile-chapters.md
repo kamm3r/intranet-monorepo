@@ -1,0 +1,12 @@
+- 0:00 Portal: responsive dashboard
+- 0:01 Portal: mobile sidebar
+- 0:03 Portal: calendar and skills card
+- 0:05 Users: responsive service directory
+- 0:08 Users: mobile navigation menu
+- 0:09 Users: responsive user management
+- 0:12 Kuutio: responsive booking calendar
+- 0:14 Kuutio: select the next day
+- 0:16 Työaika: responsive clock page
+- 0:18 Työaika: mobile navigation and employee roster
+- 0:20 Työaika: responsive employee roster
+- 0:22 Työaika: responsive monthly schedule

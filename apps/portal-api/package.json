@@ -1,0 +1,31 @@
+{
+  "name": "@intranet/portal-api",
+  "version": "1.0.0",
+  "description": "Serverside app of the intranet portal.",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "tsx watch --env-file=.env index.ts",
+    "start": "node --env-file=.env dist/index.js",
+    "build": "tsc -b",
+    "lint": "tsc --noEmit -p tsconfig.json"
+  },
+  "author": "Veikko Laine",
+  "license": "ISC",
+  "dependencies": {
+    "@effect/platform": "^0.90.0",
+    "@effect/platform-node": "^0.95.0",
+    "@intranet/auth-server": "workspace:*",
+    "effect": "^3.17.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.6.0"
+  }
+}

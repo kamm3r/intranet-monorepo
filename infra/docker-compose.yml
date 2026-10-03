@@ -1,0 +1,89 @@
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - intranet-mongo:/data/db
+
+  users-api:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.service
+      args:
+        APP: users-api
+        WEB: users-web
+    ports:
+      - "4001:4001"
+    environment:
+      NODE_ENV: production
+      PORT: 4001
+      MONGODB_URI: mongodb://mongo:27017/users-prod
+      JWT_SECRET: change-me-in-prod
+      SECRET: change-me-in-prod
+      URL: http://localhost:4001
+      CLIENT_URL: http://localhost:4001
+    depends_on:
+      - mongo
+
+  portal-api:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.service
+      args:
+        APP: portal-api
+        WEB: portal-web
+    ports:
+      - "4002:4002"
+    environment:
+      NODE_ENV: production
+      PORT: 4002
+      USERS_URL: http://users-api:4001
+      SERVICE_KEY: dev-portal-key-change-me
+      CLIENT_URL: http://localhost:4002
+    depends_on:
+      - users-api
+
+  kuutio-api:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.service
+      args:
+        APP: kuutio-api
+        WEB: kuutio-web
+    ports:
+      - "4003:4003"
+    environment:
+      NODE_ENV: production
+      PORT: 4003
+      MONGODB_URI: mongodb://mongo:27017/kuutio-prod
+      USERS_URL: http://users-api:4001
+      SERVICE_NAME: kuutio
+      SERVICE_KEY: dev-kuutio-key-change-me
+    depends_on:
+      - mongo
+      - users-api
+
+  tyoaika-api:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.service
+      args:
+        APP: tyoaika-api
+        WEB: tyoaika-web
+    ports:
+      - "4004:4004"
+    environment:
+      NODE_ENV: production
+      PORT: 4004
+      MONGODB_URI: mongodb://mongo:27017/tyoaika-prod
+      USERS_URL: http://users-api:4001
+      SERVICE_NAME: tyoaika
+      SERVICE_KEY: dev-tyoaika-key-change-me
+    depends_on:
+      - mongo
+      - users-api
+
+volumes:
+  intranet-mongo:
