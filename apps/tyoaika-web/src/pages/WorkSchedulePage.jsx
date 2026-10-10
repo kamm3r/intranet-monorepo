@@ -11,6 +11,7 @@ import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
+import { PageContainer, PageHeader } from "@intranet/ui/page";
 
 const WorkSchedulePage = ({ user }) => {
   const [selectedMonth, setSelectedMonth] = useState(() => new Date(new Date().getFullYear(), new Date().getMonth(), 1));
@@ -86,14 +87,8 @@ const WorkSchedulePage = ({ user }) => {
   const timeTag = (stamp) => stamp ? getHHMM(new Date(stamp)) : "–";
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 lg:py-10">
-      <div className="mb-7 flex flex-wrap items-end justify-between gap-3">
-        <div className="min-w-0">
-          <h1 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">Työajat</h1>
-          <p className="mt-1 break-all text-sm text-muted-foreground">{displayName}</p>
-        </div>
-        {user.admin && requestedEmail && <Button variant="ghost" size="sm" asChild><Link to="/employees"><ArrowLeft className="size-4" aria-hidden="true" />Työntekijät</Link></Button>}
-      </div>
+    <PageContainer>
+      <PageHeader title="Työvuorosuunnitelma" description={<span className="break-all">{displayName}</span>} actions={user.admin && requestedEmail && <Button variant="outline" size="sm" asChild><Link to="/employees"><ArrowLeft className="size-4" aria-hidden="true" />Työntekijät</Link></Button>} />
       {error && <Alert variant="destructive" className="mb-5"><AlertDescription>{error}</AlertDescription></Alert>}
       <Card className="min-w-0 gap-0">
         <CardHeader className="flex flex-col gap-4 border-b pb-5 sm:flex-row sm:items-center sm:justify-between">
@@ -126,7 +121,7 @@ const WorkSchedulePage = ({ user }) => {
           </Table>}
         </CardContent>
       </Card>
-    </main>
+    </PageContainer>
   );
 };
 

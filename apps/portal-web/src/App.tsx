@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react"
-import { CalendarClock, Clock3, Trash2 } from "lucide-react"
+import { useEffect, useState, type ReactNode } from "react"
+import { ChevronRight, CalendarClock, CalendarDays, CheckCircle2, Clock3, LayoutGrid, Trash2, type LucideIcon } from "lucide-react"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "./components/ui/card"
 import { Button } from "./components/ui/button"
 import { Calendar } from "./components/ui/calendar"
@@ -7,11 +7,11 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import { Input } from "./components/ui/input"
 import { Label } from "./components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./components/ui/select"
-import { SidebarProvider, SidebarTrigger } from "@intranet/ui/sidebar"
 import { format } from "date-fns"
 import { fi } from "react-day-picker/locale"
 import { useServiceSession } from "@intranet/ui/session"
-import { IntranetSidebar } from "@intranet/ui/shell"
+import { IntranetShell } from "@intranet/ui/shell"
+import { PageHeader, PageStatus } from "@intranet/ui/page"
 import { SkillsCard } from "./components/SkillsCard"
 import { WorkTimeProgress, workDuration } from "./components/WorkTimeProgress"
 import authorizeApi from "./api/authorize"
@@ -249,66 +249,68 @@ export default function App() {
     finally { setPunching(false) }
   }
 
-  if (!ready) return <div className="p-6 text-sm" role="status">{sessionError || "Ladataan käyttäjätietoja…"}</div>
+  if (!ready) return <PageStatus error={sessionError} />
 
   const meetingList = (date: string) => sortedBookings.filter((booking) => bookingDate(booking) === date)
+  const upcoming = sortedBookings.filter((booking) => bookingDate(booking) >= today).length
+  const dateLabel = now.toLocaleDateString("fi-FI", { weekday: "long", day: "numeric", month: "long" })
   return (
-    <SidebarProvider className="font-body">
-      <IntranetSidebar user={user} urls={{ portal: domain, users: usersWebUrl, kuutio: kuutioWebUrl, tyoaika: tyoaikaWebUrl }} signInUrl={loginUrl} onLogout={logout} />
-      <main className="dashboard-container min-w-0 flex-1 px-4 pb-10 pt-8 sm:px-6 lg:px-8 xl:pt-12">
+    <IntranetShell user={user} urls={{ portal: domain, users: usersWebUrl, kuutio: kuutioWebUrl, tyoaika: tyoaikaWebUrl }} signInUrl={loginUrl} onLogout={logout}>
+      <main className="dashboard-container min-w-0 flex-1 px-4 pb-12 pt-6 sm:px-6 sm:pt-8 lg:px-8">
         <div className="mx-auto max-w-[1500px]">
-          <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-start gap-3">
-              <SidebarTrigger className="mt-1 size-9 shrink-0" aria-label="Avaa tai sulje sivuvalikko" />
-              <div><p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Intranet / Etusivu</p><h1 className="mt-1 font-display text-3xl font-bold tracking-tight sm:text-[2.5rem]">Yhteenveto</h1><p className="mt-1 text-sm text-muted-foreground">Tämä viikko yhdellä silmäyksellä</p></div>
-            </div>
-          </div>
-          {!user && <p className="mb-4 rounded-md border p-4 text-sm">Kirjaudu sisään nähdäksesi omat varaukset ja työaikakirjaukset.</p>}
-          {actionMessage && <p role="status" className="mb-4 rounded-md border border-primary/20 bg-accent px-4 py-3 text-sm">{actionMessage}</p>}
+          <PageHeader title={`Hei, ${user?.firstname || "tervetuloa"}`} description={`${dateLabel.charAt(0).toUpperCase()}${dateLabel.slice(1)} · tämä viikko yhdellä silmäyksellä`} />
+          {actionMessage && <p role="status" className="mb-5 flex items-center gap-2 rounded-lg border border-emerald-600/25 bg-emerald-600/10 px-4 py-3 text-sm text-emerald-900 dark:text-emerald-200"><CheckCircle2 className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />{actionMessage}</p>}
           <div className="dashboard-grid">
             <Card className="dashboard-card--time flex min-w-0 flex-col">
-              <CardHeader className="px-5 py-3"><CardTitle className="text-sm">Työaikaleimaus</CardTitle></CardHeader>
+              <CardHeading icon={Clock3} title="Työaikaleimaus" />
               <CardContent className="flex flex-grow items-center justify-center">
                 <WorkTimeProgress minutes={todayMinutes} active={!!openTime} ready={!!user && workReady && !workError} saving={punching} completed={ownTimes.some((entry) => !!entry.departure && new Date(entry.departure).getTime() >= dayStart)} onStamp={punch} />
               </CardContent>
-              {workError && <CardFooter><p role="alert" className="text-center text-xs text-destructive">{workError}</p></CardFooter>}
+              {workError && <CardFooter><p role="alert" className="w-full text-center text-xs text-destructive">{workError}</p></CardFooter>}
             </Card>
             <Card className="dashboard-card--meetings flex min-w-0 flex-col">
-              <CardHeader className="px-5 py-3"><CardTitle className="text-sm">Kuutio · varaukset</CardTitle></CardHeader>
-              <CardContent className="flex flex-col gap-3 overflow-y-auto px-5 py-1">
+              <CardHeading icon={CalendarClock} title="Kuutio-varaukset" />
+              <CardContent className="flex min-h-0 flex-col gap-4 overflow-y-auto px-5 py-1">
                 {[{ label: "Tänään", key: today }, { label: "Huomenna", key: tomorrow }].map(({ label, key }) =>
-                  <div key={key} className="space-y-1">
-                    <h2 className="text-sm font-medium">{label} {format(new Date(key), "d.M.")}</h2>
+                  <section key={key} className="space-y-1.5">
+                    <h2 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label} · {format(new Date(key), "d.M.")}</h2>
                     {meetingList(key).length ? meetingList(key).map((booking) =>
-                      <div key={booking._id} className="flex min-w-0 justify-between gap-2 rounded-md bg-secondary p-2 text-sm text-secondary-foreground">
-                        <span className="min-w-0 truncate">{booking.topic}</span><span className="shrink-0">{booking.selectedTime[0]}–{booking.endingTime}</span>
+                      <div key={booking._id} className="flex min-w-0 justify-between gap-2 rounded-md border-l-2 border-primary bg-secondary px-2.5 py-2 text-sm text-secondary-foreground">
+                        <span className="min-w-0 truncate">{booking.topic}</span><span className="shrink-0 tabular-nums text-muted-foreground">{booking.selectedTime[0]}–{booking.endingTime}</span>
                       </div>) : <p className="text-sm text-muted-foreground">Ei varauksia</p>}
-                  </div>)}
+                  </section>)}
                 {bookingError && <p role="alert" className="text-xs text-destructive">{bookingError}</p>}
               </CardContent>
               <CardFooter className="mt-auto">{user ? <ReserveMeetingDialog bookings={bookings} disabled={!bookingsReady || !!bookingError} initialDate={selectedDate} onCreated={async (date) => { setSelectedDate(date); await loadBookings(); setActionMessage("Kuutio-varaus tallennettu.") }} name={name} /> : <Button asChild size="sm"><a href={kuutioWebUrl}>Kuutio</a></Button>}</CardFooter>
             </Card>
             <Card className="dashboard-card--projects min-w-0">
-              <CardHeader className="px-5 py-3"><CardTitle className="text-sm">Palvelut</CardTitle></CardHeader>
-              <CardContent className="space-y-2">
-                <a className="flex items-center justify-between rounded-md border p-3 text-sm font-medium hover:bg-accent" href={kuutioWebUrl}>Kuutio <CalendarClock className="size-4 text-primary" /></a>
-                <a className="flex items-center justify-between rounded-md border p-3 text-sm font-medium hover:bg-accent" href={tyoaikaWebUrl}>Työaikakirjaus <Clock3 className="size-4 text-primary" /></a>
+              <CardHeading icon={LayoutGrid} title="Pikalinkit" />
+              <CardContent className="space-y-2 px-4">
+                {[
+                  { label: "Kuutio", description: "Varaa huone", href: kuutioWebUrl, icon: CalendarClock },
+                  { label: "Leimaus", description: "Sisään ja ulos", href: tyoaikaWebUrl, icon: Clock3 },
+                  { label: "Työajat", description: "Kuukausinäkymä", href: `${tyoaikaWebUrl}/work-schedule`, icon: CalendarDays },
+                ].map(({ label, description, href, icon: Icon }) =>
+                  <a key={label} href={href} className="group flex min-w-0 items-center gap-3 rounded-lg border p-2.5 transition-colors hover:border-primary/30 hover:bg-accent">
+                    <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-accent text-primary group-hover:bg-background" aria-hidden="true"><Icon className="size-4" /></span>
+                    <span className="min-w-0 flex-1"><span className="block truncate text-sm font-medium">{label}</span><span className="block truncate text-xs text-muted-foreground">{description}</span></span>
+                    <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-[color,translate] group-hover:translate-x-0.5 group-hover:text-primary motion-reduce:transition-none" aria-hidden="true" />
+                  </a>)}
               </CardContent>
             </Card>
             <div className="dashboard-card--summary grid min-w-0 grid-cols-1 gap-5">
-              <Card className="h-full w-full min-w-0"><CardHeader className="px-5 py-3"><CardTitle className="text-sm">Työaika tänään</CardTitle></CardHeader><CardContent><p className="font-display text-3xl tabular-nums">{workDuration(todayMinutes)}</p></CardContent></Card>
-              <Card className="h-full w-full min-w-0"><CardHeader className="px-5 py-3"><CardTitle className="text-sm">Tulevat varaukset</CardTitle></CardHeader><CardContent><p className="text-3xl tabular-nums">{sortedBookings.filter((booking) => bookingDate(booking) >= today).length}</p></CardContent></Card>
+              <StatCard title="Työaika tänään" value={workDuration(todayMinutes)} caption="Päivätavoite 8 h" />
+              <StatCard title="Tulevat varaukset" value={String(upcoming)} caption={upcoming === 1 ? "varaus Kuutiossa" : "varausta Kuutiossa"} />
             </div>
             <Card className="dashboard-card--calendar min-w-0">
-              <CardContent className="dashboard-calendar-content flex min-w-0 flex-col gap-4 px-5 py-3">
+              <CardContent className="dashboard-calendar-content flex min-w-0 flex-col gap-5 px-5 py-3">
                 <div className="max-w-full overflow-x-auto"><Calendar locale={fi} mode="single" selected={selectedDate} onSelect={setSelectedDate} className="p-0" /></div>
-                <div className="flex min-w-0 flex-col gap-2 overflow-y-auto">
-                  <h2 className="text-sm font-medium">{selectedDate ? format(selectedDate, "d.M.yyyy") : "Valitse päivä"}</h2>
+                <div className="flex min-h-0 min-w-0 flex-col gap-2 overflow-y-auto">
+                  <h2 className="text-sm font-medium">{selectedDate ? <>Varaukset <span className="tabular-nums">{format(selectedDate, "d.M.yyyy")}</span></> : "Valitse päivä"}</h2>
                   {selectedBookings.length ? selectedBookings.map((booking) =>
-                    <div key={booking._id} className="flex flex-wrap items-center justify-between gap-2 rounded border p-2 text-sm">
-                      <span className="min-w-0 break-words">{booking.topic}</span><div className="flex items-center gap-2"><span>{booking.selectedTime[0]}–{booking.endingTime}</span>{user && (user.admin || booking.createdBy === user.email) && <CancelBookingDialog booking={booking} onCancelled={async () => { setBookings((previous) => previous.filter((item) => item._id !== booking._id)); setActionMessage("Varaus peruttu.") }} />}</div>
-                    </div>) : <p className="text-sm text-muted-foreground">Ei varauksia</p>}
-                  <Button asChild size="sm" className="mt-auto"><a href={`${tyoaikaWebUrl}/work-schedule`}>Työaikojen kuukausinäkymä</a></Button>
+                    <div key={booking._id} className="flex flex-wrap items-center justify-between gap-2 rounded-md border px-2.5 py-1.5 text-sm">
+                      <span className="min-w-0 break-words">{booking.topic}</span><div className="flex items-center gap-1"><span className="tabular-nums text-muted-foreground">{booking.selectedTime[0]}–{booking.endingTime}</span>{user && (user.admin || booking.createdBy === user.email) && <CancelBookingDialog booking={booking} onCancelled={async () => { setBookings((previous) => previous.filter((item) => item._id !== booking._id)); setActionMessage("Varaus peruttu.") }} />}</div>
+                    </div>) : <p className="rounded-md border border-dashed px-3 py-4 text-sm text-muted-foreground">Ei varauksia tälle päivälle.</p>}
                 </div>
               </CardContent>
             </Card>
@@ -316,6 +318,20 @@ export default function App() {
           </div>
         </div>
       </main>
-    </SidebarProvider>
+    </IntranetShell>
   )
+}
+
+function CardHeading({ icon: Icon, title, action }: { icon: LucideIcon; title: string; action?: ReactNode }) {
+  return <CardHeader className="flex flex-row items-center justify-between gap-2 px-5 py-3">
+    <CardTitle className="flex items-center gap-2 text-sm font-medium"><Icon className="size-4 text-primary" aria-hidden="true" />{title}</CardTitle>
+    {action}
+  </CardHeader>
+}
+
+function StatCard({ title, value, caption }: { title: string; value: string; caption: string }) {
+  return <Card className="h-full w-full min-w-0 justify-between">
+    <CardHeader className="px-5 py-0"><CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle></CardHeader>
+    <CardContent className="px-5"><p className="font-display text-3xl font-semibold tabular-nums tracking-tight">{value}</p><p className="mt-1 text-xs text-muted-foreground">{caption}</p></CardContent>
+  </Card>
 }

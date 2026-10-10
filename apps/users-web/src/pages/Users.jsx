@@ -37,8 +37,9 @@ import {
     SelectTrigger,
     SelectValue,
 } from "../components/ui/select"
-import { Link } from 'react-router-dom'
 import { Badge } from '../components/ui/badge'
+import { AdminOnly } from '../components/AdminOnly'
+import { PageContainer, PageHeader, PageStatus } from '@intranet/ui/page'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import {
     AlertDialog,
@@ -56,6 +57,18 @@ const accessLevels = [
     { role: 'Sisällön muokkaaja', accessLevel: 2 },
     { role: 'Ylläpitäjä', accessLevel: 3 }
 ]
+
+function UserIdentity({ u }) {
+    const name = [u.firstname, u.lastname].filter(Boolean).join(' ')
+    const initials = (name || u.email).split(/[\s@.]+/).slice(0, 2).map((part) => part[0]?.toUpperCase()).join('')
+    return <div className='flex min-w-0 items-center gap-3'>
+        <span className='flex size-9 shrink-0 items-center justify-center rounded-full bg-accent text-xs font-semibold text-accent-foreground' aria-hidden='true'>{initials}</span>
+        <div className='min-w-0'>
+            <p className='truncate text-sm font-medium'>{name || u.email}</p>
+            {name && <p className='truncate text-xs text-muted-foreground'>{u.email}</p>}
+        </div>
+    </div>
+}
 
 function UserAccess({ u, services }) {
     return <ul className='flex min-w-0 flex-col gap-1'>
@@ -138,7 +151,7 @@ function SetAccessLevel({ user, onSaved }) {
                                 </div>
                                 <Button variant='ghost' type="button" onClick={() => setAccess(access.filter((_, i) => i !== index))}>
                                     <Trash2 className="w-4 h-4" />
-                                    <span className="sr-only">poista sovellus</span>
+                                    <span className="sr-only">Poista sovellus</span>
                                 </Button>
                             </li>
                         ))}
@@ -150,7 +163,7 @@ function SetAccessLevel({ user, onSaved }) {
                             onClick={() => setAccess([...access, { service: '', level: '1' }])}
                         >
                             <Plus className="w-4 h-4" />
-                            <span className="sr-only">lisaa sovellus</span>
+                            <span className="sr-only">Lisää sovellus</span>
                         </Button>
                         <Button variant='default' type='submit' disabled={saving}>Tallenna</Button>
                     </div>
@@ -192,7 +205,7 @@ function TableOptions({ u }) {
                             {u.admin ? 'Poista oikeudet' : 'Anna oikeudet'}
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => { setError(''); setConfirmOpen(true) }}>
+                        <DropdownMenuItem className='text-destructive focus:bg-destructive/10 focus:text-destructive' onClick={() => { setError(''); setConfirmOpen(true) }}>
                             Poista käyttäjä
                         </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -260,25 +273,14 @@ export default function Users() {
         loadServices()
     }, [user])
 
-    if (!authReady) return <main className="p-4">Ladataan...</main>
+    if (!authReady) return <PageStatus />
 
-    if (!user || !user.admin) {
-        return (
-            <main className='flex flex-col grow justify-center items-center gap-2 px-4 pb-2 pt-4 sm:px-8 sm:py-4'>
-                <h2 className='text-3xl'>Vain järjestelmänvalvojilla on oikeus käyttää tätä sivua.</h2>
-                <Link to='/' className='font-medium text-primary hover:underline'>Takaisin etusivulle</Link>
-            </main>
-        )
-    }
+    if (!user || !user.admin) return <AdminOnly />
 
     return (
-        <main className='w-full px-4 py-8 sm:px-6 sm:py-10'>
-            <div className='mx-auto flex w-full max-w-6xl flex-col gap-6'>
-                <div className='max-w-2xl'>
-                    <h1 className='font-display text-3xl font-semibold tracking-tight'>Käyttäjät</h1>
-                    <p className='mt-2 text-sm leading-relaxed text-muted-foreground'>Hallitse käyttäjien palvelukohtaisia käyttöoikeuksia ja ylläpitäjän roolia. Oikeuksien muutokset tulevat voimaan seuraavan kirjautumisen jälkeen.</p>
-                </div>
-                {loadError && <p role='alert' className='text-sm text-destructive'>{loadError}</p>}
+        <PageContainer>
+                <PageHeader title='Käyttäjät' description='Hallitse käyttäjien palvelukohtaisia käyttöoikeuksia ja ylläpitäjän roolia. Oikeuksien muutokset tulevat voimaan seuraavan kirjautumisen jälkeen.' />
+                {loadError && <p role='alert' className='mb-4 text-sm text-destructive'>{loadError}</p>}
                 <Card className='min-w-0 overflow-hidden'>
                     <CardHeader className='flex-row items-center justify-between gap-3 border-b'>
                         <div>
@@ -291,7 +293,7 @@ export default function Users() {
                 <div className='divide-y md:hidden'>
                     {[...users].sort((a, b) => a.email.localeCompare(b.email)).map((u) => <div key={u._id} className='space-y-3 px-5 py-4'>
                         <div className='flex min-w-0 items-start justify-between gap-2'>
-                            <p className='min-w-0 break-all text-sm font-semibold'>{u.email}</p>
+                            <UserIdentity u={u} />
                             <TableOptions u={u} />
                         </div>
                         <Badge variant={u.admin ? 'default' : 'outline'}>{u.admin ? 'Ylläpitäjä' : 'Käyttäjä'}</Badge>
@@ -303,23 +305,23 @@ export default function Users() {
                     <TableCaption className='sr-only'>Käyttäjien käyttöoikeudet</TableCaption>
                     <TableHeader>
                         <TableRow>
-                            <TableHead className="w-[100px]">Sähköposti</TableHead>
+                            <TableHead className="pl-6">Käyttäjä</TableHead>
                             <TableHead>Käyttöoikeustasot</TableHead>
                             <TableHead>Rooli</TableHead>
-                            <TableHead className="w-[100px] text-right"></TableHead>
+                            <TableHead className="w-16 pr-6"><span className="sr-only">Toiminnot</span></TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {[...users].sort((a, b) => a.email.localeCompare(b.email)).map((u) => (
                             <TableRow key={u._id}>
-                                <TableCell className="max-w-[200px] break-words font-medium">{u.email}</TableCell>
+                                <TableCell className="pl-6"><UserIdentity u={u} /></TableCell>
                                 <TableCell>
                                     <UserAccess u={u} services={services} />
                                 </TableCell>
                                 <TableCell>
                                     <Badge variant={u.admin ? 'default' : 'outline'}>{u.admin ? 'Ylläpitäjä' : 'Käyttäjä'}</Badge>
                                 </TableCell>
-                                <TableCell>
+                                <TableCell className="pr-6 text-right">
                                     <TableOptions u={u} />
                                 </TableCell>
                             </TableRow>
@@ -329,7 +331,6 @@ export default function Users() {
                 </div>
                     </CardContent>
                 </Card>
-            </div>
-        </main>
+        </PageContainer>
     )
 }

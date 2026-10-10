@@ -10,6 +10,7 @@ import { Button } from "../components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "../components/ui/dialog";
+import { PageContainer, PageHeader } from "@intranet/ui/page";
 
 const authHeaders = () => requestConfig().headers ?? {};
 
@@ -122,19 +123,16 @@ const WorkHourPage = ({ user }) => {
   };
 
   const recentEntries = workTimes.filter((entry) => entry.name === user.email).slice(0, 6);
-  const dateLabel = new Date().toLocaleDateString("fi-FI", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+  const dateLabel = new Date().toLocaleDateString("fi-FI", { weekday: "long", year: "numeric", month: "long", day: "numeric" }).replace(/^./, (letter) => letter.toUpperCase());
 
   return (
-    <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-10 lg:py-10">
-      <div className="mb-7 flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">Työaikaleimaus</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{dateLabel}</p>
-        </div>
-        <Badge variant={clockedIn ? "success" : "outline"} className="px-3 py-1 text-sm" aria-live="polite">
+    <PageContainer width="wide">
+      <PageHeader title="Työaikaleimaus" description={dateLabel} actions={
+        <Badge variant={clockedIn ? "success" : "outline"} className="gap-1.5 px-3 py-1 text-sm" aria-live="polite">
+          <span className={`size-2 rounded-full ${clockedIn ? "bg-current" : "bg-muted-foreground/50"}`} aria-hidden="true" />
           {clockedIn ? "Työaika käynnissä" : "Ei avointa työaikaa"}
         </Badge>
-      </div>
+      } />
 
       <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
         <Card className="min-w-0 gap-0">
@@ -203,7 +201,7 @@ const WorkHourPage = ({ user }) => {
           </div>
         </DialogContent>
       </Dialog>
-    </main>
+    </PageContainer>
   );
 };
 

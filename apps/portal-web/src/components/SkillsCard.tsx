@@ -1,5 +1,5 @@
 import { memo, useMemo, useState } from "react"
-import { Pencil, Plus, Trash2 } from "lucide-react"
+import { Pencil, Plus, Sparkles, Trash2 } from "lucide-react"
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from "recharts"
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "./ui/chart"
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
@@ -11,7 +11,7 @@ import { Slider } from "./ui/slider"
 
 type Skill = { id: string; name: string; value: number }
 const defaults = ["TypeScript", "Algoritmit", "Fullstack", "Data", "DevOps", "Tietokannat", "UI/UX", "Rust"]
-const config = { value: { label: "Osaaminen", color: "#245a91" } } satisfies ChartConfig
+const config = { value: { label: "Osaaminen", color: "var(--color-primary)" } } satisfies ChartConfig
 const margin = { top: 16, right: 48, bottom: 16, left: 48 }
 const clamp = (value: number) => Math.max(0, Math.min(100, Number.isFinite(value) ? value : 0))
 
@@ -55,7 +55,7 @@ export const SkillsCard = memo(function SkillsCard({ email }: { email: string })
   }
   return <Card className="dashboard-card--skills min-w-0">
     <CardHeader className="flex flex-row items-center justify-between gap-2 px-5 py-3">
-      <CardTitle className="text-sm">Oma osaaminen</CardTitle>
+      <CardTitle className="flex items-center gap-2 text-sm font-medium"><Sparkles className="size-4 text-primary" aria-hidden="true" />Oma osaaminen</CardTitle>
       <Dialog open={open} onOpenChange={(next) => { setOpen(next); if (next) { setDraft(skills.map((skill) => ({ ...skill }))); setNewName(""); setError("") } }}>
         <DialogTrigger asChild><Button size="sm" variant="outline"><Pencil className="size-3.5" /> Muokkaa</Button></DialogTrigger>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl">
@@ -84,7 +84,7 @@ export const SkillsCard = memo(function SkillsCard({ email }: { email: string })
           <ChartTooltip content={<ChartTooltipContent />} />
           <Radar name="Osaaminen" dataKey="value" stroke="var(--color-value)" fill="var(--color-value)" fillOpacity={0.5} isAnimationActive={false} />
         </RadarChart>
-      </ChartContainer> : skills.length > 0 && skills.some((skill) => skill.value > 0) ? <div className="space-y-4">{skills.map((skill) => <div key={skill.id}><div className="mb-2 flex justify-between gap-2 text-sm"><span className="break-words">{skill.name}</span><span>{skill.value}/100</span></div><div className="h-2 rounded-full bg-secondary"><div className="h-full rounded-full bg-primary" style={{ width: `${skill.value}%` }} /></div></div>)}</div> : <p className="text-sm text-muted-foreground">Lisää omat taitosi ja osaamistasosi nähdäksesi kaavion.</p>}
+      </ChartContainer> : skills.length > 0 && skills.some((skill) => skill.value > 0) ? <div className="space-y-4">{skills.map((skill) => <div key={skill.id}><div className="mb-2 flex justify-between gap-2 text-sm"><span className="break-words">{skill.name}</span><span>{skill.value}/100</span></div><div className="h-2 rounded-full bg-secondary"><div className="h-full rounded-full bg-primary" style={{ width: `${skill.value}%` }} /></div></div>)}</div> : <p className="rounded-md border border-dashed px-3 py-6 text-center text-sm text-muted-foreground">Lisää omat taitosi ja osaamistasosi nähdäksesi kaavion.</p>}
     </CardContent>
   </Card>
 })

@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import { AdminOnly } from "../components/AdminOnly";
+import { PageContainer, PageHeader, PageStatus } from "@intranet/ui/page";
+import { ArrowLeft } from "lucide-react";
 
 import servicesApi from "../api/services";
 import { useStore } from "../utils/store";
@@ -71,20 +74,9 @@ export default function ServiceForm() {
     }, [editing, id, services]);
 
 
-    if (!authReady) return <main className="p-4">Ladataan...</main>;
+    if (!authReady) return <PageStatus />
 
-    if (!user || !user.admin) {
-        return (
-            <main className="flex flex-col grow justify-center items-center gap-2 px-4 pb-2 pt-4 sm:px-8 sm:py-4">
-                <h2 className="text-3xl">
-                    Vain järjestelmänvalvojilla on oikeus käyttää tätä sivua.
-                </h2>
-                <Link to="/" className="opacity-70 hover:opacity-100 hover:underline">
-                    Takaisin etusivulle
-                </Link>
-            </main>
-        );
-    }
+    if (!user || !user.admin) return <AdminOnly />
 
     const onSubmit = async (event) => {
         event.preventDefault();
@@ -114,18 +106,14 @@ export default function ServiceForm() {
     };
 
     return (
-        <main className="w-full px-4 py-8 sm:px-6 sm:py-10">
-            <Card className="mx-auto w-full min-w-0 max-w-xl">
+        <PageContainer width="narrow">
+            <PageHeader title={editing ? "Muokkaa palvelua" : "Lisää palvelu"} description={editing ? "Muuta palvelun nimeä, osoitetta tai avainta." : "Liitä uusi sovellus intranetiin. Palvelun avaimen on vastattava sovelluksen asetuksia."} actions={<Button variant="ghost" size="sm" asChild><Link to="/services"><ArrowLeft className="size-4" aria-hidden="true" />Palvelut</Link></Button>} />
+            <Card className="w-full min-w-0">
                 <CardHeader>
-                <CardTitle>
-                    {editing
-                        ? "Muokkaa sovelluksen tietoja"
-                        : "Lisää uusi sovellus intranetiin"}
-                </CardTitle>
-                <CardDescription>{editing ? "Muuta palvelun nimeä, osoitetta tai avainta." : "Liitä uusi sovellus intranetiin. Palvelun avaimen on vastattava sovelluksen asetuksia."}</CardDescription>
+                <CardTitle>Palvelun tiedot</CardTitle>
                 </CardHeader>
                 <CardContent>
-                <form onSubmit={onSubmit} className="flex w-full min-w-0 flex-col gap-3 max-w-md">
+                <form onSubmit={onSubmit} className="flex w-full min-w-0 flex-col gap-5">
                     <div className="flex w-full min-w-0 flex-col gap-2">
                         <div className="flex min-w-0 flex-wrap items-center gap-1">
                             <Label htmlFor="name">Palvelun nimi</Label>
@@ -164,7 +152,7 @@ export default function ServiceForm() {
                             className="w-full min-w-0"
                         />
                     </div>
-                    <div className="flex w-full min-w-0 flex-col gap-2 max-w-sm">
+                    <div className="flex w-full min-w-0 flex-col gap-2">
                         <div className="flex min-w-0 flex-wrap items-center gap-1">
                             <Label htmlFor="serviceKey">Palvelun avain</Label>
                             <HelpMe>
@@ -173,7 +161,7 @@ export default function ServiceForm() {
                                 syötetään sovelluksen ympäristömuuttujiin .env-tiedostoon.
                             </HelpMe>
                         </div>
-                        <div className="flex w-full min-w-0 max-w-sm items-center gap-x-2">
+                        <div className="flex w-full min-w-0 items-center gap-x-1">
                             <Input id="serviceKey" type={showKey ? "text" : "password"} value={serviceKey} onChange={(event) => setServiceKey(event.target.value)} className="w-full min-w-0" required />
                             <Button variant="ghost" type="button" onClick={() => setShowKey(!showKey)} aria-label={showKey ? "Piilota avain" : "Näytä avain"}>
                                 {showKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -202,13 +190,13 @@ export default function ServiceForm() {
                         </div>
                     </RadioGroup>
                     {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
-                    <div className="flex flex-wrap justify-end gap-2 pt-3">
+                    <div className="flex flex-wrap justify-end gap-2 border-t pt-5">
                         <Button variant="outline" type="button" onClick={() => navigate("/services")}>Peruuta</Button>
                         <Button type="submit" disabled={saving}>{saving ? "Tallennetaan..." : "Tallenna palvelu"}</Button>
                     </div>
                 </form>
                 </CardContent>
             </Card>
-        </main>
+        </PageContainer>
     );
 }

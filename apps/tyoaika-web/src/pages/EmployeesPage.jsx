@@ -7,6 +7,7 @@ import { Alert, AlertDescription } from "../components/ui/alert";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
+import { PageContainer, PageHeader } from "@intranet/ui/page";
 
 const EmployeesPage = ({ user }) => {
   const [employees, setEmployees] = useState([]);
@@ -34,14 +35,11 @@ const EmployeesPage = ({ user }) => {
     return () => controller.abort();
   }, [user.admin]);
 
-  if (!user.admin) return <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6"><Alert variant="destructive"><AlertDescription>Vain järjestelmänvalvojat voivat nähdä työntekijät.</AlertDescription></Alert></main>;
+  if (!user.admin) return <PageContainer><Alert variant="destructive"><AlertDescription>Vain järjestelmänvalvojat voivat nähdä työntekijät.</AlertDescription></Alert></PageContainer>;
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 lg:py-10">
-      <div className="mb-7">
-        <h1 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">Työntekijät</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Valitse työntekijä nähdäksesi hänen työaikakirjauksensa.</p>
-      </div>
+    <PageContainer>
+      <PageHeader title="Työntekijät" description="Valitse työntekijä nähdäksesi hänen työaikakirjauksensa." />
       {error && <Alert variant="destructive" className="mb-5"><AlertDescription>{error}</AlertDescription></Alert>}
       <Card className="gap-0">
         <CardHeader className="flex-row items-center justify-between gap-3 border-b pb-5">
@@ -72,7 +70,7 @@ const EmployeesPage = ({ user }) => {
           )}
         </CardContent>
       </Card>
-    </main>
+    </PageContainer>
   );
 };
 

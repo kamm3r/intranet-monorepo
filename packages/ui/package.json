@@ -6,7 +6,9 @@
   "exports": {
     "./sidebar": "./components/sidebar.tsx",
     "./shell": "./IntranetShell.tsx",
-    "./session": "./useServiceSession.ts"
+    "./session": "./useServiceSession.ts",
+    "./page": "./PageHeader.tsx",
+    "./theme": "./ThemeToggle.tsx"
   },
   "dependencies": {
     "react": "^19.0.0",

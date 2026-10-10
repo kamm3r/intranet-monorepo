@@ -19,8 +19,8 @@ import bookingApi from '../api/booking';
 import { bookingTopics } from '../features/arrays';
 import { nextRecurringDate, recurrenceAvailability, sameCalendarDay } from '../features/booking';
 import { getEndingTime } from '../components/TimeButtonFunctions';
-import { portalWebUrl } from '../config';
 import useStore from '../store';
+import { PageContainer, PageHeader } from '@intranet/ui/page';
 
 const BookingPage = () => {
   const user = useStore((state) => state.user);
@@ -51,7 +51,7 @@ const BookingPage = () => {
   const recurrence = recurrenceAvailability(bookings, selectedDate, sortedTimes, regularBookingFrequency);
   const canBook = Boolean(user && sortedTimes.length && name.trim() && topic &&
     (!regularBooking || (regularBookingFrequency && regularBookingLength >= 1 && regularBookingLength <= recurrence.limit)));
-  const selectedDateLabel = selectedDate.toLocaleDateString('fi-FI', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const selectedDateLabel = selectedDate.toLocaleDateString('fi-FI', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).replace(/^./, (letter) => letter.toUpperCase());
 
   const clearDraft = () => {
     setNewBooking(false);
@@ -115,11 +115,8 @@ const BookingPage = () => {
   };
 
   return (
-    <main className="mx-auto w-full max-w-7xl min-w-0 px-4 pb-12 pt-8 sm:px-6">
-      <div className="mb-7 space-y-2">
-        <h1 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">Varaa Kuutio</h1>
-        <p className="max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">Valitse päivä ja vapaa aika. Voit varata huoneen enintään kahdeksi tunniksi kerrallaan.</p>
-      </div>
+    <PageContainer width="wide">
+      <PageHeader title="Varaa Kuutio" description="Valitse päivä ja vapaa aika. Voit varata huoneen enintään kahdeksi tunniksi kerrallaan." />
 
       {!user && <Alert className="mb-5"><AlertDescription>Kirjaudu sisään nähdäksesi vapaat ajat ja tehdäksesi varauksen.</AlertDescription></Alert>}
       {loadingBookings && <p role="status" className="mb-5 text-sm text-muted-foreground">Ladataan varauksia…</p>}
@@ -137,7 +134,7 @@ const BookingPage = () => {
               <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent text-primary"><CalendarDays className="size-5" aria-hidden="true" /></span>
               <div className="min-w-0">
                 <CardTitle className="font-display text-xl">{newBooking ? 'Uusi varaus' : 'Valittu päivä'}</CardTitle>
-                <CardDescription className="mt-1 capitalize">{selectedDateLabel}</CardDescription>
+                <CardDescription className="mt-1">{selectedDateLabel}</CardDescription>
               </div>
             </div>
           </CardHeader>
@@ -169,7 +166,7 @@ const BookingPage = () => {
           </CardContent>
           <CardFooter className="flex-col items-stretch gap-2 border-t pt-5">
             <Button type="button" disabled={!canBook} onClick={() => setShowConfirmWindow(true)}>Varaa Kuutio</Button>
-            <Button type="button" variant="ghost" asChild><a href={portalWebUrl}>Palaa etusivulle</a></Button>
+            {newBooking && <Button type="button" variant="ghost" onClick={clearDraft}>Peruuta valinta</Button>}
           </CardFooter>
         </Card>
       </div>
@@ -185,7 +182,7 @@ const BookingPage = () => {
       {showConfirmWindow && <ConfirmWindow topic={topic} name={name} selectedDate={selectedDate} selectedTime={sortedTimes} endingTime={endingTime} regularBooking={regularBooking} regularBookingLength={regularBookingLength} regularBookingTimeformat={regularBookingFrequency === 'weekly' ? 'viikkoa' : 'arkipäivää'} submitting={submitting} setShowConfirmWindow={setShowConfirmWindow} newBookingHandler={newBookingHandler} />}
       {showThanksWindow && <ThanksWindow setNewBooking={setNewBooking} setShowThanksWindow={setShowThanksWindow} />}
       {showErrorWindow && <ErrorWindow message={bookingError} setNewBooking={setNewBooking} setShowErrorWindow={setShowErrorWindow} setShowConfirmWindow={setShowConfirmWindow} />}
-    </main>
+    </PageContainer>
   );
 };
 

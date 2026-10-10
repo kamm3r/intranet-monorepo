@@ -23,15 +23,14 @@ const Calendar = ({ date, setSelectedDate, highlightDays = [] }) => {
 
   return (
     <Card className="w-full min-w-0 gap-4 py-5">
-      <CardHeader className="gap-4 px-4 sm:px-6">
-        <div className="flex min-w-0 items-center justify-between gap-2">
-          <h2 className="font-display text-xl font-semibold tracking-tight sm:text-2xl">{months[month]} {year}</h2>
-          <Button type="button" variant="outline" size="sm" onClick={() => setSelectedDate(today)}>Tänään</Button>
-        </div>
-        <div className="flex items-center justify-between border-b pb-4">
-          <Button type="button" variant="ghost" size="icon-sm" aria-label="Edellinen kuukausi" disabled={!canGoBack} onClick={() => changeMonth(-1)}><ChevronLeft aria-hidden="true" /></Button>
-          <p className="text-sm text-muted-foreground">Valitse päivä</p>
-          <Button type="button" variant="ghost" size="icon-sm" aria-label="Seuraava kuukausi" onClick={() => changeMonth(1)}><ChevronRight aria-hidden="true" /></Button>
+      <CardHeader className="px-4 sm:px-6">
+        <div className="flex min-w-0 flex-wrap items-center justify-between gap-2">
+          <h2 className="font-display text-xl font-semibold tracking-tight sm:text-2xl" aria-live="polite">{months[month]} {year}</h2>
+          <div className="flex items-center gap-1">
+            <Button type="button" variant="outline" size="icon-sm" aria-label="Edellinen kuukausi" disabled={!canGoBack} onClick={() => changeMonth(-1)}><ChevronLeft aria-hidden="true" /></Button>
+            <Button type="button" variant="outline" size="sm" onClick={() => setSelectedDate(today)}>Tänään</Button>
+            <Button type="button" variant="outline" size="icon-sm" aria-label="Seuraava kuukausi" onClick={() => changeMonth(1)}><ChevronRight aria-hidden="true" /></Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="px-3 sm:px-5">

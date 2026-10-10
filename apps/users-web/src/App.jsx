@@ -4,7 +4,6 @@ import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "r
 import serviceApi from "./api/services";
 
 import { CookieTracker } from "./utils/CookieTracker";
-import { ThemeProvider } from "./components/theme-provider";
 import { useStore } from "./utils/store";
 import Account from "./pages/Account";
 import Login from "./pages/Login";
@@ -13,8 +12,8 @@ import Reset from "./pages/Reset";
 import Services from "./pages/Services";
 import ServiceForm from "./pages/ServiceForm";
 import Users from "./pages/Users";
-import { ModeToggle } from "./components/header";
 import { IntranetShell } from "@intranet/ui/shell";
+import { PageStatus } from "@intranet/ui/page";
 import { portalUrl, kuutioWebUrl, tyoaikaWebUrl } from "./config";
 import authorizeApi from "./api/authorize";
 import Cookies from "universal-cookie";
@@ -30,9 +29,9 @@ function UsersLayout({ children }) {
     authorizeApi.setToken(null);
     setUser(null);
   };
-  if (protectedPage && !authReady) return <main className="p-6" role="status">Ladataan käyttäjätietoja…</main>;
+  if (protectedPage && !authReady) return <PageStatus />;
   if (protectedPage && !user) return <Navigate to={`/login?returnTo=${encodeURIComponent(location.pathname + location.search)}`} replace />;
-  return <IntranetShell user={user} urls={{ portal: portalUrl, users: window.location.origin, kuutio: kuutioWebUrl, tyoaika: tyoaikaWebUrl }} signInUrl={`/login${location.search}`} onLogout={logout} headerActions={<ModeToggle />}>{children}</IntranetShell>;
+  return <IntranetShell user={user} urls={{ portal: portalUrl, users: window.location.origin, kuutio: kuutioWebUrl, tyoaika: tyoaikaWebUrl }} signInUrl={`/login${location.search}`} onLogout={logout}>{children}</IntranetShell>;
 }
 
 export default function App() {
@@ -55,7 +54,7 @@ export default function App() {
   }, []);
 
   return (
-    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+    <>
       <CookieTracker />
       <Router>
         <UsersLayout>
@@ -79,6 +78,6 @@ export default function App() {
         </Routes>
         </UsersLayout>
       </Router>
-    </ThemeProvider>
+    </>
   );
 }

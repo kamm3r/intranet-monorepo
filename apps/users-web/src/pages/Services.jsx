@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { AdminOnly } from "../components/AdminOnly";
+import { PageContainer, PageHeader, PageStatus } from "@intranet/ui/page";
 
 import servicesApi from "../api/services";
 import { useStore } from "../utils/store";
@@ -51,19 +53,20 @@ function MoreOptions({ service }) {
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
+          size="icon-sm"
+          className="data-[state=open]:bg-muted"
+          aria-label={`Toiminnot palvelulle ${service.name}`}
         >
-          <MoreHorizontalIcon className="h-4 w-4" />
-          <span className="sr-only">Open menu</span>
+          <MoreHorizontalIcon className="size-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
         <DropdownMenuItem onClick={() => navigate(`/services/${service._id}`)}>
-          muokkaa
+          Muokkaa
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => setConfirmOpen(true)}>
-          poista
+        <DropdownMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive" onClick={() => setConfirmOpen(true)}>
+          Poista
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -108,7 +111,7 @@ function CopyToClip({ service }) {
     className="h-auto max-w-32 min-w-0 px-0 font-mono text-xs"
     aria-label="Kopioi palvelun avain"
     onClick={() => copyUrlToClipboard(service.serviceKey)}
-  ><span className="truncate">{copy ? "kopioitu" : service.showServiceKey ? service.serviceKey : "********"}</span></Button>;
+  ><span className="truncate">{copy ? "Kopioitu" : service.showServiceKey ? service.serviceKey : "********"}</span></Button>;
 }
 
 function ServiceItems({ mobile = false }) {
@@ -195,37 +198,14 @@ export default function Services() {
     getServices();
   }, [user]);
 
-  if (!authReady) return <main className="p-4">Ladataan...</main>;
+  if (!authReady) return <PageStatus />
 
-  if (!user || !user.admin) {
-    return (
-      <main className="flex flex-col grow justify-center items-center gap-2 px-4 pb-2 pt-4 sm:px-8 sm:py-4">
-        <h2 className="text-3xl">
-          Vain järjestelmänvalvojilla on oikeus käyttää tätä sivua.
-        </h2>
-        <Link to="/" className="opacity-70 hover:opacity-100 hover:underline">
-          Takaisin etusivulle
-        </Link>
-      </main>
-    );
-  }
+    if (!user || !user.admin) return <AdminOnly />
 
   return (
-    <main className="w-full px-4 py-8 sm:px-6 sm:py-10">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div className="max-w-2xl">
-            <h1 className="font-display text-3xl font-semibold tracking-tight">Palvelut</h1>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">Hallinnoi intranetiin liitettyjä sovelluksia ja niiden yhteystietoja.</p>
-          </div>
-        <Button
-          onClick={() => navigate("/services/new")}
-        >
-          <PlusIcon className="size-4" />
-          Lisää palvelu
-        </Button>
-        </div>
-        {loadError && <p role="alert" className="text-sm text-destructive">{loadError}</p>}
+    <PageContainer>
+        <PageHeader title="Palvelut" description="Hallinnoi intranetiin liitettyjä sovelluksia ja niiden yhteystietoja." actions={<Button onClick={() => navigate("/services/new")}><PlusIcon className="size-4" />Lisää palvelu</Button>} />
+        {loadError && <p role="alert" className="mb-4 text-sm text-destructive">{loadError}</p>}
         <Card className="min-w-0 overflow-hidden">
           <CardHeader className="flex-row items-center justify-between gap-3 border-b">
             <div>
@@ -256,7 +236,6 @@ export default function Services() {
         </div>
           </CardContent>
         </Card>
-      </div>
-    </main>
+    </PageContainer>
   );
 }
