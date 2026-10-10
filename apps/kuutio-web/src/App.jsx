@@ -1,17 +1,15 @@
-import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Header from "./components/Header";
+import { IntranetShell } from "@intranet/ui/shell";
+import { useServiceSession } from "@intranet/ui/session";
 import BookingPage from "./pages/BookingPage";
+import authorizeApi from "./api/authorize";
+import useStore from "./store";
+import { domain, usersUrl, usersWebUrl, portalWebUrl, tyoaikaWebUrl } from "./config";
 
-function App() {
-	return (
-		<BrowserRouter>
-			<Header />
-			<Routes>
-				<Route path="/" element={<BookingPage />}/>
-			</Routes>
-		</BrowserRouter>
-		);
+export default function App() {
+  const setUser = useStore((state) => state.setUser);
+  const { user, ready, error, logout, loginUrl } = useServiceSession({ client: authorizeApi, cookieName: "kuutioToken", usersUrl: usersWebUrl, profileUrl: `${usersUrl}/api/users`, domain, onUser: setUser });
+  return <BrowserRouter><IntranetShell user={user} urls={{ portal: portalWebUrl, users: usersWebUrl, kuutio: domain, tyoaika: tyoaikaWebUrl }} signInUrl={loginUrl} onLogout={logout}>
+    {ready ? <Routes><Route path="/" element={<BookingPage />} /></Routes> : <main className="p-6 text-sm" role="status">{error || "Ladataan käyttäjätietoja…"}</main>}
+  </IntranetShell></BrowserRouter>;
 }
-
-export default App;

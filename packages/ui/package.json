@@ -1,0 +1,22 @@
+{
+  "name": "@intranet/ui",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./sidebar": "./components/sidebar.tsx",
+    "./shell": "./IntranetShell.tsx",
+    "./session": "./useServiceSession.ts"
+  },
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "radix-ui": "^1.6.7",
+    "lucide-react": "^1.48.0",
+    "cn": "^0.4.0",
+    "class-variance-authority": "^0.7.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0"
+  }
+}

@@ -97,7 +97,7 @@ export default function Register() {
 
         setUser(authenticatedUser);
 
-        navigate(domain ? `/login?domain=${encodeURIComponent(domain)}` : "/");
+        navigate(`/login?${searchParams}`);
       } else setError("Kirjautuminen epäonnistui rekisteröinnin jälkeen.");
     } catch (exception) {
       setError(exception.response?.data?.error || "Rekisteröinti epäonnistui. Tarkista tiedot ja yritä uudelleen.");
@@ -110,7 +110,7 @@ export default function Register() {
     <AccountShell
       title="Luo intranet-tunnus"
       description="Tunnuksellasi pääset niihin sovelluksiin, joihin sinulle on annettu käyttöoikeus."
-      footer={<p>Onko sinulla jo tunnus? <Link to={domain ? `/login?domain=${encodeURIComponent(domain)}` : "/login"} className="font-medium text-primary hover:underline">Kirjaudu sisään</Link></p>}
+      footer={<p>Onko sinulla jo tunnus? <Link to={`/login?${searchParams}`} className="font-medium text-primary hover:underline">Kirjaudu sisään</Link></p>}
     >
           <form onSubmit={registerAndLogin} className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">

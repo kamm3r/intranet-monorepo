@@ -1,6 +1,6 @@
 // node imports
 import { useState, useEffect } from "react";
-import { Link, useParams, useSearchParams } from "react-router-dom";
+import { Link, useParams, useSearchParams, useNavigate } from "react-router-dom";
 import Cookies from "universal-cookie";
 
 import authenticateApi from "../api/authenticate";
@@ -23,6 +23,15 @@ export default function Login() {
 
   const [searchParams] = useSearchParams();
   const { domain: pathDomain } = useParams();
+  const navigate = useNavigate();
+  const requestedPath = searchParams.get("returnTo");
+  const returnTo = requestedPath?.startsWith("/") && !requestedPath.startsWith("//") && !requestedPath.includes("\\") ? requestedPath : "/";
+  const registerQuery = new URLSearchParams(searchParams);
+  const serviceDestination = (protocol, host, key) => {
+    const destination = new URL(returnTo, `${protocol}://${host}`);
+    destination.searchParams.set("user_key", key);
+    return destination.toString();
+  };
 
   // url/?domain=example.com
   const domain = searchParams.get("domain") || pathDomain;
@@ -39,7 +48,8 @@ export default function Login() {
     if (authReady && user && !domain) {
       // Already logged in with no external service requested:
       // hand off to the main intranet page.
-      redirectToPortal();
+      if (requestedPath && returnTo !== "/" && !returnTo.startsWith("/login") && !returnTo.startsWith("/register")) navigate(returnTo, { replace: true });
+      else redirectToPortal();
     }
   }, [authReady, user, domain]);
 
@@ -51,7 +61,7 @@ export default function Login() {
 
     const protocol = service.protocol;
 
-    window.location.href = `${protocol}://${domain}/?user_key=${data.user_key}`;
+    window.location.href = serviceDestination(protocol, domain, data.user_key);
   };
 
   // Hand the logged-in user off to the main intranet (portal) page with
@@ -145,7 +155,7 @@ export default function Login() {
 
         const protocol = service.protocol;
 
-        window.location.href = `${protocol}://${domain}/?user_key=${authenticatedUser.user_key}`;
+        window.location.href = serviceDestination(protocol, domain, authenticatedUser.user_key);
       } else setUser(authenticatedUser);
     } else {
       setError("Kirjautuminen epäonnistui. Tarkista tunnukset ja yritä uudelleen.");
@@ -159,7 +169,7 @@ export default function Login() {
       description="Käytä omaa sähköpostiosoitettasi ja salasanaasi."
       footer={<div className="flex w-full flex-wrap justify-between gap-3">
         <Link to="/resetpassword" className="font-medium text-primary hover:underline">Unohditko salasanan?</Link>
-        <Link to={domain ? `/register?domain=${encodeURIComponent(domain)}` : "/register"} className="font-medium text-primary hover:underline">Luo tunnus</Link>
+        <Link to={`/register?${registerQuery}`} className="font-medium text-primary hover:underline">Luo tunnus</Link>
       </div>}
     >
         <form onSubmit={loginButton} className="flex flex-col gap-5">

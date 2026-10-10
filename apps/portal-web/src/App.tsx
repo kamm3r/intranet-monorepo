@@ -7,15 +7,15 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import { Input } from "./components/ui/input"
 import { Label } from "./components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./components/ui/select"
-import { SidebarProvider, SidebarTrigger } from "./components/ui/sidebar"
+import { SidebarProvider, SidebarTrigger } from "@intranet/ui/sidebar"
 import { format } from "date-fns"
 import { fi } from "react-day-picker/locale"
-import Authorize from "./components/logical/Authorize"
-import { PortalSidebar } from "./components/PortalSidebar"
+import { useServiceSession } from "@intranet/ui/session"
+import { IntranetSidebar } from "@intranet/ui/shell"
 import { SkillsCard } from "./components/SkillsCard"
 import { WorkTimeProgress, workDuration } from "./components/WorkTimeProgress"
 import authorizeApi from "./api/authorize"
-import { kuutioApiUrl, kuutioWebUrl, tyoaikaApiUrl, tyoaikaWebUrl } from "./config"
+import { kuutioApiUrl, kuutioWebUrl, tyoaikaApiUrl, tyoaikaWebUrl, usersWebUrl, domain } from "./config"
 import useStore from "./store"
 
 type Booking = {
@@ -167,7 +167,8 @@ function CancelBookingDialog({ booking, onCancelled }: { booking: Booking; onCan
 }
 
 export default function App() {
-  const user = useStore((state) => state.user)
+  const setUser = useStore((state) => state.setUser)
+  const { user, ready, error: sessionError, logout, loginUrl } = useServiceSession({ client: authorizeApi, cookieName: "portalToken", usersUrl: usersWebUrl, domain, onUser: setUser })
   const [now, setNow] = useState(new Date())
   const [bookings, setBookings] = useState<Booking[]>([])
   const [workTimes, setWorkTimes] = useState<WorkTime[]>([])
@@ -248,10 +249,12 @@ export default function App() {
     finally { setPunching(false) }
   }
 
+  if (!ready) return <div className="p-6 text-sm" role="status">{sessionError || "Ladataan käyttäjätietoja…"}</div>
+
   const meetingList = (date: string) => sortedBookings.filter((booking) => bookingDate(booking) === date)
   return (
     <SidebarProvider className="font-body">
-      <PortalSidebar />
+      <IntranetSidebar user={user} urls={{ portal: domain, users: usersWebUrl, kuutio: kuutioWebUrl, tyoaika: tyoaikaWebUrl }} signInUrl={loginUrl} onLogout={logout} />
       <main className="dashboard-container min-w-0 flex-1 px-4 pb-10 pt-8 sm:px-6 lg:px-8 xl:pt-12">
         <div className="mx-auto max-w-[1500px]">
           <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
@@ -259,7 +262,6 @@ export default function App() {
               <SidebarTrigger className="mt-1 size-9 shrink-0" aria-label="Avaa tai sulje sivuvalikko" />
               <div><p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Intranet / Etusivu</p><h1 className="mt-1 font-display text-3xl font-bold tracking-tight sm:text-[2.5rem]">Yhteenveto</h1><p className="mt-1 text-sm text-muted-foreground">Tämä viikko yhdellä silmäyksellä</p></div>
             </div>
-            <Authorize linkClassName="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring" />
           </div>
           {!user && <p className="mb-4 rounded-md border p-4 text-sm">Kirjaudu sisään nähdäksesi omat varaukset ja työaikakirjaukset.</p>}
           {actionMessage && <p role="status" className="mb-4 rounded-md border border-primary/20 bg-accent px-4 py-3 text-sm">{actionMessage}</p>}
@@ -267,13 +269,9 @@ export default function App() {
             <Card className="dashboard-card--time flex min-w-0 flex-col">
               <CardHeader className="px-5 py-3"><CardTitle className="text-sm">Työaikaleimaus</CardTitle></CardHeader>
               <CardContent className="flex flex-grow items-center justify-center">
-                <WorkTimeProgress minutes={todayMinutes} active={!!openTime} ready={!!user && workReady && !workError} />
+                <WorkTimeProgress minutes={todayMinutes} active={!!openTime} ready={!!user && workReady && !workError} saving={punching} completed={ownTimes.some((entry) => !!entry.departure && new Date(entry.departure).getTime() >= dayStart)} onStamp={punch} />
               </CardContent>
-              <CardFooter className="flex flex-col items-center gap-1">
-                {user && <Button disabled={punching || !workReady || !!workError} onClick={punch}>{punching ? "Tallennetaan..." : openTime ? "Leimaa ulos" : "Leimaa sisään"}</Button>}
-                {openTime && <p className="text-xs text-muted-foreground">Sisään {format(new Date(openTime.arrival), "HH:mm")}</p>}
-                {workError && <p role="alert" className="text-center text-xs text-destructive">{workError}</p>}
-              </CardFooter>
+              {workError && <CardFooter><p role="alert" className="text-center text-xs text-destructive">{workError}</p></CardFooter>}
             </Card>
             <Card className="dashboard-card--meetings flex min-w-0 flex-col">
               <CardHeader className="px-5 py-3"><CardTitle className="text-sm">Kuutio · varaukset</CardTitle></CardHeader>

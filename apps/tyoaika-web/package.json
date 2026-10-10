@@ -20,7 +20,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.0.0",
-    "tailwind-merge": "^1.14.0"
+    "tailwind-merge": "^1.14.0",
+    "@intranet/ui": "workspace:*"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",

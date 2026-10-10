@@ -47,3 +47,5 @@
     transform: translateX(calc(100% + 25px));
   }
 }
+
+@source "../../../packages/ui";

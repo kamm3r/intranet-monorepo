@@ -27,7 +27,8 @@
     "recharts": "^3.8.0",
     "tailwind-merge": "^1.14.0",
     "universal-cookie": "^7.0.0",
-    "zustand": "^5.0.0"
+    "zustand": "^5.0.0",
+    "@intranet/ui": "workspace:*"
   },
   "devDependencies": {
     "@babel/core": "^7.21.4",

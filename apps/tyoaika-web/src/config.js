@@ -26,3 +26,5 @@ const usersWebUrl = import.meta.env.VITE_USERS_WEB_URL || 'http://localhost:5171
 const portalWebUrl = import.meta.env.VITE_PORTAL_WEB_URL || 'http://localhost:5172'
 
 export { environment, apiUrl, usersUrl, usersWebUrl, portalWebUrl, domain }
+
+export const kuutioWebUrl = import.meta.env.VITE_KUUTIO_WEB_URL || "http://localhost:5175"

@@ -23,3 +23,6 @@ const usersUrl =
   apiUrl;
 
 export { apiUrl, environment, portalUrl, usersUrl };
+
+export const kuutioWebUrl = import.meta.env.VITE_KUUTIO_WEB_URL || "http://localhost:5175";
+export const tyoaikaWebUrl = import.meta.env.VITE_TYOAIKA_WEB_URL || "http://localhost:5176";
